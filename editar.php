@@ -13,6 +13,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $endereco = $_POST['endereco'];
     $tipo = $_POST['tipo'];
 
+    // Validação do título (não pode conter números)
+    if (preg_match('/[0-9]/', $titulo)) {
+        die("O título não pode conter números");
+    }
+
+    // Validação do preço (não pode ser negativo)
+    if ($preco < 0) {
+        die("O preço não pode ser negativo");
+    }
+
     $stmt = $pdo->prepare("UPDATE imoveis SET titulo=?, descricao=?, preco=?, endereco=?, tipo=? WHERE id=?");
     $stmt->execute([$titulo, $descricao, $preco, $endereco, $tipo, $id]);
 
@@ -23,20 +33,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <title>Editar Imóvel</title>
 </head>
+
 <body class="bg-gray-100 min-h-screen flex items-center justify-center px-4 font-[Inter]">
     <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-lg">
         <h1 class="text-2xl font-bold mb-6 text-gray-800">Editar Imóvel</h1>
         <form method="POST" class="space-y-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700">Título</label>
-                <input type="text" name="titulo" value="<?= $imovel['titulo'] ?>" class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                <input type="text"
+                    name="titulo"
+                    value="<?= $imovel['titulo'] ?>"
+                    pattern="^[^0-9]*$"
+                    title="O título não pode conter números"
+                    class="mt-1 block w-full border border-gray-300 rounded-md p-2">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700">Descrição</label>
@@ -44,7 +61,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700">Preço</label>
-                <input type="number" step="0.01" name="preco" value="<?= $imovel['preco'] ?>" class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                <input type="number"
+                    step="0.01"
+                    name="preco"
+                    value="<?= $imovel['preco'] ?>"
+                    min="0"
+                    class="mt-1 block w-full border border-gray-300 rounded-md p-2">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700">Endereço</label>
@@ -67,6 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </form>
     </div>
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </body>
+
 </html>
